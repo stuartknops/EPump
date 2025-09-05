@@ -1,0 +1,17 @@
+import numpy as np
+from scipy.optimize import minimize
+
+def epumpoptimize(prop,deltaP,mdot,MR):
+    if prop == "rp1":
+        rho = 811 #kg/m^3
+        Q = (mdot/(1+MR))/rho
+        H = deltaP/(rho*9.81)
+    
+    elif prop == "lox":
+        rho =
+        Q = (mdot/(1+MR))/rho
+        H = deltaP/(rho*9.81)
+    
+    def objective(x) # where x = [n,deltaT]:
+    
+    if d_2 > 100 or 
