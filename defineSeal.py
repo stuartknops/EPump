@@ -1,3 +1,3 @@
-class seal:
-    def __init__(self,lowerbearing):
-        self.d = lowerbearing.d
+class sealClass:
+    def __init__(self,d_b):
+        self.d_1 = d_b
