@@ -1,9 +1,13 @@
 import numpy as np
-from scipy.optimize import minimize
+#from scipy.optimize import minimize
+import math
+from definePump import epump
 
-def epumpoptimize(prop, deltaP, mdot, MR):
+
+def epumpoptimize(prop, deltaP, mdot, MR,Tamb):
     #inputs assumed to be same across pumps
-    d_H = .023 #mm, from spline sizing
+    d_H = .023 #mm, from key sizing
+    e_Rs = .002*1.25
 
     
     # Fluid properties
@@ -15,9 +19,7 @@ def epumpoptimize(prop, deltaP, mdot, MR):
         raise ValueError("Unknown propellant")
 
     # Example derived quantities
-    Q = (mdot / (1 + MR)) / rho
-    H = deltaP / (rho * 9.81)
-
+    
     # Objective function
     def objective(x):
         # x = [n, deltaT]
@@ -27,7 +29,8 @@ def epumpoptimize(prop, deltaP, mdot, MR):
 
         ## Define first pump in order to get bearing circulation rate
         #1) size Impeller
-        n_q = 1
+        firstpump = epump(self,Q)
+        print(firstpump.p)
 
         # Penalties
         if d_2 > 100:
@@ -36,11 +39,10 @@ def epumpoptimize(prop, deltaP, mdot, MR):
             p_draw += 1e6
         if deltaT > 20:
             p_draw += 1e6
-
         return p_draw
 
     # Run optimizer
-    res = minimize(objective, x0=[10, 5])  # <-- pick reasonable guess
+    res = minimize(objective, x0=[23000, 10])
     return res.x, res.fun, H, Q, n_q, d_2, d_b, d_s
 
 # Example call
