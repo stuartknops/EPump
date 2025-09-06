@@ -1,6 +1,6 @@
 import numpy as np
 import math
-from definePump import epumpClass
+from defineImpeller import impellerClass
 from defineBearings import bearingClass
 from defineSeal import sealClass
 
@@ -34,19 +34,25 @@ def optimize(prop, deltaP, mdot, MR,Tamb):
 
         ## Define first pump in order to get bearing circulation rate
         #1) size Impeller
-        firstpump = epumpClass(Q,n,H,rho,e_Rs,d_D,d_H,eta_V)
-        print(f"d_2 is equal to {firstpump.d_2}")
-        print(f"power is equal to {firstpump.p}")
+        impeller1 = impellerClass(Q,n,H,rho,e_Rs,d_D,d_H,eta_V)
         #2) select bearings based on rpm and forces. For now most calculations skipped because of selection complications and beam loading
-        bearing = bearingClass(n,firstpump.f_ax)        
-
-        eta_V = Q/((Q+bearing.Qdot)*1.03) # assuming 3% leak rate
-        p_draw = firstpump.p/1000 #converting to kW
+        bearing = bearingClass(n,impeller1.f_ax)        
+        #3) find heating on bearings, remember to incorporate deltaT's effect on viscosity.
+        #4) size seals and find heating
+        #6) find required florwate
+        Qcooling = .000122
+        #5)rerun impeller sizing with new mdot
+        Qnew = Q + Qcooling
+        eta_Vnew = Q/((Qnew)*1.03) # assuming 3% leak rate
+        impeller2 = impellerClass(Qnew,n,H,rho,e_Rs,d_D,d_H,eta_Vnew)
+        p_imp = impeller2.p/(1000*impeller2.eta_H*1.03) #converting to kW, apply hydraulic efficiency and leak rate
+        #6) apply all power losses and efficiencies
+        p_draw = p_imp
         # Penalties
-        if firstpump.d_2 > .1:
+        if impeller1.d_2 > .1:
             p_draw += 1e6
             print("a")
-        if firstpump.p / p_all > 0.85:
+        if impeller1.p / p_all > 0.85:
             p_draw += 1e6
         if deltaT > 20:
             p_draw += 1e6

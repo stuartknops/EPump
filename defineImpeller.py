@@ -1,5 +1,5 @@
 import math
-class epumpClass:
+class impellerClass:
     def __init__(self,vdot,n,H,rho,e_Rs,d_D,d_H,eta_V):
         self.Q = vdot
         self.psi = 1.09
