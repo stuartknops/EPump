@@ -1,17 +1,48 @@
 import numpy as np
 from scipy.optimize import minimize
 
-def epumpoptimize(prop,deltaP,mdot,MR):
+def epumpoptimize(prop, deltaP, mdot, MR):
+    #inputs assumed to be same across pumps
+    d_H = .023 #mm, from spline sizing
+
+    
+    # Fluid properties
     if prop == "rp1":
-        rho = 811 #kg/m^3
-        Q = (mdot/(1+MR))/rho
-        H = deltaP/(rho*9.81)
-    
+        rho = 811  # kg/m^3
     elif prop == "lox":
-        rho =
-        Q = (mdot/(1+MR))/rho
-        H = deltaP/(rho*9.81)
-    
-    def objective(x) # where x = [n,deltaT]:
-    
-    if d_2 > 100 or 
+        rho =  1100 # kg/m^3
+    else:
+        raise ValueError("Unknown propellant")
+
+    # Example derived quantities
+    Q = (mdot / (1 + MR)) / rho
+    H = deltaP / (rho * 9.81)
+
+    # Objective function
+    def objective(x):
+        # x = [n, deltaT]
+        n = x[0]
+        deltaT = x[1]
+        p_all = (n/50000)*40
+
+        ## Define first pump in order to get bearing circulation rate
+        #1) size Impeller
+        n_q = 1
+
+        # Penalties
+        if d_2 > 100:
+            p_draw += 1e6
+        if p_draw / p_all > 0.85:
+            p_draw += 1e6
+        if deltaT > 20:
+            p_draw += 1e6
+
+        return p_draw
+
+    # Run optimizer
+    res = minimize(objective, x0=[10, 5])  # <-- pick reasonable guess
+    return res.x, res.fun, H, Q, n_q, d_2, d_b, d_s
+
+# Example call
+#x_opt, obj_val = epumpoptimize("rp1", 500, 4, 2)
+#print("Optimal n:", x_opt[0], "Optimal deltaT:", x_opt[1], "p_min:", obj_val)
