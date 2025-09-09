@@ -36,19 +36,23 @@ def optimize(prop, deltaP, mdot, MR,Tamb):
         #1) size Impeller
         impeller1 = impellerClass(Q,n,H,rho,e_Rs,d_D,d_H,eta_V)
         #2) select bearings based on rpm and forces. For now most calculations skipped because of selection complications and beam loading
-        bearing = bearingClass(n,impeller1.f_ax)        
+        lowerBearing = bearingClass(n,"AC",impeller1.f_ax)     
+        upperBearing = bearingClass(n,"DG",impeller1.f_ax)
         #3) find heating on bearings, remember to incorporate deltaT's effect on viscosity.
+        
         #4) size seals and find heating
+        seal = sealClass(upperBearing.d1,n,deltaP)
+        seal.powerLoss()
         #6) find required florwate
-        Qcooling = .000122
+        Qcooling = .000122 #temp
         #5)rerun impeller sizing with new mdot
         Qnew = Q + Qcooling
         eta_Vnew = Q/((Qnew)*1.03) # assuming 3% leak rate
         impeller2 = impellerClass(Qnew,n,H,rho,e_Rs,d_D,d_H,eta_Vnew)
-        p_imp = impeller2.p/(1000*impeller2.eta_H*1.03) #converting to kW, apply hydraulic efficiency and leak rate
+        p_imp = impeller2.p/(1000) #converting to kW, apply hydraulic efficiency and leak rate
         #6) apply all power losses and efficiencies
-        p_draw = p_imp
-        # Penalties
+        p_draw = (p_imp+ seal.p)/impeller2.eta_H*1.03
+        # Penalties/constraints
         if impeller1.d_2 > .1:
             p_draw += 1e6
             print("a")
@@ -56,6 +60,8 @@ def optimize(prop, deltaP, mdot, MR,Tamb):
             p_draw += 1e6
         if deltaT > 20:
             p_draw += 1e6
+        if lowerBearing.d1 > 24: #done in mm because that's what the bearing heating calcs are in
+            p_draw += 1e6 # breaks the seal code rn. Also generally good, dont want seal face speeds to get too high.
         return p_draw
     test = objective([23000,10])
     return test
