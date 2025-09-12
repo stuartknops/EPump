@@ -36,7 +36,6 @@ class impellerClass:
         F_Rdyn = .12 * rho * 9.81 * H * self.d_2 * b_2tot 
         self.f_r = F_Rdyn + F_Rst 
     def summary(self):
-        print()
         print("=== Impeller ===")
         print(f"Flow rate Q      : {self.Q:.4f} m³/s")
         print(f"Specific speed n_q: {self.n_q:.3f}")
@@ -46,4 +45,3 @@ class impellerClass:
         print(f"Hydraulic power   : {self.p:.2f} W")
         print(f"Axial force f_ax  : {self.f_ax:.2f} N")
         print(f"Radial force f_r  : {self.f_r:.2f} N")
-        

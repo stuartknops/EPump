@@ -4,8 +4,8 @@ from defineImpeller import impellerClass
 from defineBearings import bearingClass
 from defineSeal import sealClass
 
-# current parameters: ("rp1",460,6.17,2.23,273,135)
-def optimize(prop, deltaP, mdot, MR,Tamb,p_tank):
+# current parameters: ("rp1",460,6.17,2.23,293,135) #tamb should stay above 293 or the bearing lubrication goes a little iffy
+def pumpPlot(prop, deltaP, mdot, MR,Tamb,p_tank):
     #inputs assumed to be same across pumps
     d_H = .023 #m, from key sizing
     e_Rs = .002*1.25
@@ -23,12 +23,8 @@ def optimize(prop, deltaP, mdot, MR,Tamb,p_tank):
     else:
         raise ValueError("Unknown propellant")
     H = deltaP/(rho*9.81)
-    
-    # Objective function
-    def objective(x):
-        # x = [n, deltaT]
-        n = x[0]
-        deltaT = x[1]
+
+    def pumpPower(n,deltaT):
         p_all = (n/50000)*40 # in kW
         eta_V = .95111944218 #only used in axial force calcs, for now an estimate, later from ratio of flowrates
 
@@ -41,15 +37,16 @@ def optimize(prop, deltaP, mdot, MR,Tamb,p_tank):
         impeller1.summary()
 
         #2) select bearings based on rpm and forces. For now most calculations skipped because of selection complications and beam loading
-        UpperBearing = bearingClass(n,"AC",impeller1.f_ax,Tamb,deltaT)     
+        UpperBearing = bearingClass(n,"AC",impeller1.f_ax,Tamb,deltaT)  
+        UpperBearing.bearingSummary("AC")   
         lowerBearing = bearingClass(n,"DG",impeller1.f_ax,0,0)
+        #lowerBearing.bearingSummary()
         #3) find heating on bearings, remember to incorporate deltaT's effect on viscosity.
-        
-        #4) size seals and find heating
+
+    #4) size seals and find heating
         seal = sealClass(lowerBearing.d1,deltaP,p_tank)
         seal.powerLoss(n)
         seal.sealSummary()
-
         #6) find required florwate
         Qcooling = .000122 #temp
         #5)rerun impeller sizing with new mdot
@@ -64,9 +61,9 @@ def optimize(prop, deltaP, mdot, MR,Tamb,p_tank):
             p_draw += 1e6
         if impeller1.p / p_all > 0.85:
             p_draw += 1e6
-        if deltaT > 20 or deltaT < 2:
+        if deltaT > 30 or deltaT < 2:
             p_draw += 1e6
         if lowerBearing.d1 > 24: #done in mm because that's what the bearing heating calcs are in
             p_draw += 1e6 # breaks the seal code rn. Also generally good, dont want seal face speeds to get too high.
-        return p_draw
-    test = objective([23000,10])
+    ## plotting section
+    test = pumpPower(23000,10)
