@@ -41,8 +41,8 @@ def optimize(prop, deltaP, mdot, MR,Tamb,p_tank):
         impeller1.summary()
 
         #2) select bearings based on rpm and forces. For now most calculations skipped because of selection complications and beam loading
-        UpperBearing = bearingClass(n,"AC",impeller1.f_ax)     
-        lowerBearing = bearingClass(n,"DG",impeller1.f_ax)
+        UpperBearing = bearingClass(n,"AC",impeller1.f_ax,Tamb,deltaT)     
+        lowerBearing = bearingClass(n,"DG",impeller1.f_ax,0,0)
         #3) find heating on bearings, remember to incorporate deltaT's effect on viscosity.
         
         #4) size seals and find heating

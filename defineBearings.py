@@ -1,11 +1,13 @@
 import math
 class bearingClass:
-    def __init__(self,n,bearingType,f_ax):
+    def __init__(self,n,bearingType,f_ax,t,dt):
         if bearingType.upper() == "AC":
             self.f = 1
             self.d1 = 20
             self.d2 = 47
             d_m = .5(self.d1+self.d2)
+            tb = t+dt
+            self.v1 = ((-2)*10**(-6)*(tb**3))+(.002*tb**2) - (.7589*tb) + 95.556
             kz = 4.4
             R1 = 4.33*(10**-7)
             R2 = 2.02
