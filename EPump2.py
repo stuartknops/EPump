@@ -80,7 +80,7 @@ def pumpPlot(prop, deltaP, mdot, MR,Tamb,p_tank,min,max):
             err = 1 # breaks the seal code rn. Also generally good, dont want seal face speeds to get too high.
         return p_draw, err
     # plotting section
-    deltaTrange = np.linspace(2, 30, 50)
+    deltaTrange = np.linspace(4, 4, 8)
     nrange = np.linspace(min, max, 100)
     X, Y = np.meshgrid(nrange, deltaTrange)
 
